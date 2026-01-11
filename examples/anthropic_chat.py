@@ -5,10 +5,10 @@ from redact_prompt import redact, unredact
 
 client = anthropic.Anthropic()
 
-# User input with sensitive data
+# user input with sensitive data
 user_input = "Hi, I'm John Smith from Acme Corp. My email is john@acme.com."
 
-# Redact → Send → Unredact
+# redact → send → unredact
 result = redact(user_input)
 
 message = client.messages.create(

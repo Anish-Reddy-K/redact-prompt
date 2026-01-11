@@ -5,10 +5,10 @@ from redact_prompt import redact, unredact
 
 client = genai.Client()
 
-# User input with sensitive data
+# user input with sensitive data
 user_input = "Contact me at 555-123-4567 or jane.doe@company.com for details."
 
-# Redact → Send → Unredact
+# redact → send → unredact
 result = redact(user_input)
 
 response = client.models.generate_content(

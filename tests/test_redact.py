@@ -50,7 +50,7 @@ class TestRedactor:
         r.redact("john@example.com")
         r.clear()
         result = r.redact("jane@example.com")
-        assert "[EMAIL_1]" in result.redacted  # Counter reset
+        assert "[EMAIL_1]" in result.redacted  # counter reset
     
     def test_multiple_types(self):
         r = Redactor()

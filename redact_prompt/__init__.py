@@ -5,9 +5,9 @@ Simple usage:
     from redact_prompt import redact, unredact
     
     result = redact("Email john@acme.com")
-    send_to_llm(result.text)  # Redacted + instruction included
+    send_to_llm(result.text)  # redacted + instruction included
     
-    restored = unredact(llm_response)  # Original values restored
+    restored = unredact(llm_response)  # original values restored
 
 result.text includes instruction to preserve placeholders.
 result.redacted is just the redacted text without instruction.
@@ -29,33 +29,33 @@ def _load_spacy_model(model: str):
     try:
         return spacy.load(model)
     except OSError:
-        # Model not found, download it
+        # model not found, download it
         print(f"Downloading spaCy model '{model}'... (one-time setup)")
         spacy_download(model)
         return spacy.load(model)
 
 
-# Regex patterns for structured PII
+# regex patterns for structured pii
 PATTERNS = [
     ("EMAIL", re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", re.I)),
     ("PHONE", re.compile(r"(?:\+\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}(?!\d)")),
     ("SSN", re.compile(r"\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b")),
     ("CREDIT_CARD", re.compile(r"\b(?:4\d{3}|5[1-5]\d{2}|3[47]\d{2}|6(?:011|5\d{2}))[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4,7}\b")),
     ("IP", re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b")),
-    # API Keys
-    ("API_KEY", re.compile(r"\bsk-[a-zA-Z0-9\-_]{16,}\b")),  # OpenAI
-    ("API_KEY", re.compile(r"\bsk-ant-[a-zA-Z0-9\-_]{16,}\b")),  # Anthropic
-    ("API_KEY", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),  # AWS
-    ("API_KEY", re.compile(r"\bgh[pousr]_[a-zA-Z0-9]{36,}\b")),  # GitHub
-    ("API_KEY", re.compile(r"\b[sr]k_(?:live|test)_[a-zA-Z0-9]{20,}\b")),  # Stripe
-    ("API_KEY", re.compile(r"\bxox[bpar]-[a-zA-Z0-9\-]+\b")),  # Slack
-    ("API_KEY", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),  # Google
+    # api keys
+    ("API_KEY", re.compile(r"\bsk-[a-zA-Z0-9\-_]{16,}\b")),  # openai
+    ("API_KEY", re.compile(r"\bsk-ant-[a-zA-Z0-9\-_]{16,}\b")),  # anthropic
+    ("API_KEY", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),  # aws
+    ("API_KEY", re.compile(r"\bgh[pousr]_[a-zA-Z0-9]{36,}\b")),  # github
+    ("API_KEY", re.compile(r"\b[sr]k_(?:live|test)_[a-zA-Z0-9]{20,}\b")),  # stripe
+    ("API_KEY", re.compile(r"\bxox[bpar]-[a-zA-Z0-9\-]+\b")),  # slack
+    ("API_KEY", re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b")),  # google
 ]
 
-# spaCy entity mapping
+# spacy entity mapping
 NER_MAP = {"PERSON": "PERSON", "ORG": "ORG", "GPE": "LOCATION", "LOC": "LOCATION"}
 
-# Common words/acronyms to ignore from NER (false positives)
+# common words/acronyms to ignore from ner (false positives)
 NER_BLOCKLIST = {
     "SSN", "API", "IP", "URL", "HTTP", "HTTPS", "SQL", "HTML", "CSS", "JSON",
     "XML", "PDF", "CSV", "ID", "PIN", "OTP", "SMS", "MFA", "2FA", "VPN", "DNS",
@@ -63,7 +63,7 @@ NER_BLOCKLIST = {
     "EMAIL", "PHONE", "NAME", "ADDRESS", "KEY", "TOKEN", "PASSWORD", "SECRET",
 }
 
-# Instruction to preserve placeholders in LLM responses
+# instruction to preserve placeholders in llm responses
 PLACEHOLDER_INSTRUCTION = (
     "IMPORTANT: This text contains placeholders like [PERSON_1], [EMAIL_1], etc. "
     "You must preserve these placeholders exactly as written in your response. "
@@ -85,7 +85,7 @@ class Entity:
 class RedactionResult:
     """Result of redaction."""
     original: str
-    redacted: str  # Raw redacted text
+    redacted: str  # raw redacted text
     entities: List[Entity] = field(default_factory=list)
     
     @property
@@ -113,7 +113,7 @@ class Redactor:
         self._counters[entity_type] = self._counters.get(entity_type, 0) + 1
         n = self._counters[entity_type]
         
-        # Partial mask for API keys (show prefix/suffix for debugging)
+        # partial mask for api keys (show prefix/suffix for debugging)
         if entity_type == "API_KEY" and len(value) > 12:
             p = f"[{entity_type}_{n}:{value[:6]}***{value[-4:]}]"
         else:
@@ -130,21 +130,21 @@ class Redactor:
         
         detections = []
         
-        # Regex detection
+        # regex detection
         for entity_type, pattern in PATTERNS:
             for m in pattern.finditer(text):
                 detections.append((entity_type, m.group(), m.start(), m.end()))
         
-        # NER detection (with blocklist filtering)
+        # ner detection (with blocklist filtering)
         if self._nlp:
             for ent in self._nlp(text).ents:
                 if ent.label_ in NER_MAP:
-                    # Skip blocklisted words and very short entities
+                    # skip blocklisted words and very short entities
                     if ent.text.upper() in NER_BLOCKLIST or len(ent.text) < 3:
                         continue
                     detections.append((NER_MAP[ent.label_], ent.text, ent.start_char, ent.end_char))
         
-        # Remove overlaps (keep longer matches)
+        # remove overlaps (keep longer matches)
         detections.sort(key=lambda x: (x[2], -(x[3] - x[2])))
         filtered, last_end = [], -1
         for d in detections:
@@ -152,7 +152,7 @@ class Redactor:
                 filtered.append(d)
                 last_end = d[3]
         
-        # Replace (reverse order to preserve positions)
+        # replace (reverse order to preserve positions)
         result, entities = text, []
         for entity_type, value, start, end in sorted(filtered, key=lambda x: -x[2]):
             p = self._placeholder(entity_type, value)
@@ -179,8 +179,8 @@ class Redactor:
         self._counters.clear()
 
 
-# === Convenience API (module-level) ===
-# For simple use cases without managing a Redactor instance
+# === convenience api (module-level) ===
+# for simple use cases without managing a redactor instance
 
 _default_redactor: Optional[Redactor] = None
 

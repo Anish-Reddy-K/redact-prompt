@@ -4,10 +4,10 @@ import os
 import requests
 from redact_prompt import redact, unredact
 
-# User input with sensitive data
+# user input with sensitive data
 user_input = "My SSN is 123-45-6789 and credit card is 4111-1111-1111-1111."
 
-# Redact → Send → Unredact
+# redact → send → unredact
 result = redact(user_input)
 
 response = requests.post(
