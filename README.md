@@ -114,6 +114,66 @@ result = r.redact("text")
 r.clear()  # Reset for new conversation
 ```
 
+## How It Works
+
+```
+User Input                    LLM                         User Output
+     │                         │                              │
+     ▼                         │                              │
+┌─────────┐                    │                              │
+│ "Email  │                    │                              │
+│ john@   │                    │                              │
+│ acme.com│                    │                              │
+└────┬────┘                    │                              │
+     │                         │                              │
+     ▼                         │                              │
+ redact()                      │                              │
+     │                         │                              │
+     ▼                         │                              │
+┌─────────┐    result.text     │                              │
+│"Email   │ ──────────────────►│                              │
+│[EMAIL_1]│   (safe prompt)    │                              │
+│  +      │                    │                              │
+│instruct.│                    ▼                              │
+└─────────┘              ┌───────────┐                        │
+                         │ LLM keeps │                        │
+                         │ [EMAIL_1] │                        │
+                         │ in response                        │
+                         └─────┬─────┘                        │
+                               │                              │
+                               ▼                              │
+                         "Got it,                             │
+                          [EMAIL_1]"                          │
+                               │                              │
+                               │         unredact()           │
+                               │──────────────────────────────►
+                                                              │
+                                                              ▼
+                                                        ┌──────────┐
+                                                        │"Got it,  │
+                                                        │john@     │
+                                                        │acme.com" │
+                                                        └──────────┘
+```
+
+1. **Redact** — Regex + NER detect PII, replace with numbered placeholders
+2. **Inject** — `result.text` includes instruction telling LLM to preserve placeholders
+3. **Restore** — `unredact()` maps placeholders back to original values
+
+Same values get same placeholders (deterministic), so `john@acme.com` appearing twice → `[EMAIL_1]` both times.
+
+## Contributing
+
+PRs welcome! See [GitHub Issues](https://github.com/anthropics/redact-prompt/issues) for wanted features.
+
+**Adding a new PII pattern:**
+
+1. Add regex to `PATTERNS` in `redact_prompt/__init__.py`
+2. Add test in `tests/test_redact.py`
+3. Update "What It Detects" in README
+
+**Wanted patterns:** URL, Date of Birth, Address/ZIP, Bank Account, Drivers License, Passport Number, and more. Check issues.
+
 ## License
 
 MIT
