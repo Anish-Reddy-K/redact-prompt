@@ -12,7 +12,7 @@ user_input = "My email is sarah@acme.com and my API key is sk-proj-abc123xyz789d
 result = redact(user_input)
 
 response = client.responses.create(
-    model="gpt-4o-mini",
+    model="gpt-5-mini-2025-08-07",
     input=result.text,  # includes instruction to preserve placeholders
 )
 

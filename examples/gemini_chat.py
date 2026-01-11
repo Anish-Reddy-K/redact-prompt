@@ -12,7 +12,7 @@ user_input = "Contact me at 555-123-4567 or jane.doe@company.com for details."
 result = redact(user_input)
 
 response = client.models.generate_content(
-    model="gemini-2.0-flash",
+    model="gemini-3.0-pro-preview",
     contents=result.text,
 )
 

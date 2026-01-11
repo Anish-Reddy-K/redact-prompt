@@ -12,7 +12,7 @@ user_input = "Hi, I'm John Smith from Acme Corp. My email is john@acme.com."
 result = redact(user_input)
 
 message = client.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-5-20250929",
     max_tokens=1024,
     messages=[{"role": "user", "content": result.text}],
 )
