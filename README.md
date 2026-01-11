@@ -16,8 +16,10 @@ The spaCy language model downloads automatically on first use.
 from redact_prompt import redact, unredact
 
 result = redact("Email john@acme.com about the project")
-# Send result.text to LLM (includes instruction to preserve placeholders)
-restored = unredact(llm_response)  # Restore original values
+
+# Send result.text to LLM (includes injected instruction to preserve placeholders)
+
+restored = unredact(llm_response)
 ```
 
 ## Examples
@@ -28,10 +30,10 @@ from openai import OpenAI
 from redact_prompt import redact, unredact
 
 client = OpenAI()
-result = redact("My email is sarah@acme.com and API key is sk-proj-abc123xyz.")
+result = redact("My email is sarah@acme.com and my API key is sk-proj-abc123xyz789def456.")
 
 response = client.responses.create(
-    model="gpt-4o-mini",
+    model="gpt-5-mini-2025-08-07",
     input=result.text,
 )
 print(unredact(response.output_text))
@@ -43,10 +45,10 @@ import anthropic
 from redact_prompt import redact, unredact
 
 client = anthropic.Anthropic()
-result = redact("Hi, I'm John Smith. Email: john@acme.com")
+result = redact("Hi, I'm John Smith from Acme Corp. My email is john@acme.com.")
 
 message = client.messages.create(
-    model="claude-sonnet-4-20250514",
+    model="claude-sonnet-4-5-20250929",
     max_tokens=1024,
     messages=[{"role": "user", "content": result.text}],
 )
@@ -59,10 +61,10 @@ from google import genai
 from redact_prompt import redact, unredact
 
 client = genai.Client()
-result = redact("Contact me at 555-123-4567 or jane@company.com")
+result = redact("Contact me at 555-123-4567 or jane.doe@company.com for details.")
 
 response = client.models.generate_content(
-    model="gemini-2.0-flash",
+    model="gemini-3.0-pro-preview",
     contents=result.text,
 )
 print(unredact(response.text))
