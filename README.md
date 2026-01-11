@@ -116,45 +116,7 @@ r.clear()  # Reset for new conversation
 
 ## How It Works
 
-```
-User Input                    LLM                         User Output
-     │                         │                              │
-     ▼                         │                              │
-┌─────────┐                    │                              │
-│ "Email  │                    │                              │
-│ john@   │                    │                              │
-│ acme.com│                    │                              │
-└────┬────┘                    │                              │
-     │                         │                              │
-     ▼                         │                              │
- redact()                      │                              │
-     │                         │                              │
-     ▼                         │                              │
-┌─────────┐    result.text     │                              │
-│"Email   │ ──────────────────►│                              │
-│[EMAIL_1]│   (safe prompt)    │                              │
-│  +      │                    │                              │
-│instruct.│                    ▼                              │
-└─────────┘              ┌───────────┐                        │
-                         │ LLM keeps │                        │
-                         │ [EMAIL_1] │                        │
-                         │ in response                        │
-                         └─────┬─────┘                        │
-                               │                              │
-                               ▼                              │
-                         "Got it,                             │
-                          [EMAIL_1]"                          │
-                               │                              │
-                               │         unredact()           │
-                               │──────────────────────────────►
-                                                              │
-                                                              ▼
-                                                        ┌──────────┐
-                                                        │"Got it,  │
-                                                        │john@     │
-                                                        │acme.com" │
-                                                        └──────────┘
-```
+<img width="857" height="784" alt="Screenshot 2026-01-11 at 12 49 13 AM" src="https://github.com/user-attachments/assets/7a7a2438-a548-4f4d-a7fd-9bbc4dabee87" />
 
 1. **Redact** — Regex + NER detect PII, replace with numbered placeholders
 2. **Inject** — `result.text` includes instruction telling LLM to preserve placeholders
