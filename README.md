@@ -10,6 +10,17 @@ pip install redact-prompt
 
 The spaCy language model downloads automatically on first use.
 
+
+## How It Works
+
+<img width="1112" height="1091" alt="Screenshot 2026-01-11 at 12 49 54 AM" src="https://github.com/user-attachments/assets/13ad6c38-90c1-4502-841d-da008d1cc0bb" />
+
+1. **Redact** — Regex + NER detect PII, replace with numbered placeholders
+2. **Inject** — `result.text` includes instruction telling LLM to preserve placeholders
+3. **Restore** — `unredact()` maps placeholders back to original values
+
+Same values get same placeholders (deterministic), so `john@acme.com` appearing twice → `[EMAIL_1]` both times.
+
 ## Quick Start
 
 ```python
@@ -114,15 +125,6 @@ result = r.redact("text")
 r.clear()  # Reset for new conversation
 ```
 
-## How It Works
-
-<img width="857" height="784" alt="Screenshot 2026-01-11 at 12 49 13 AM" src="https://github.com/user-attachments/assets/7a7a2438-a548-4f4d-a7fd-9bbc4dabee87" />
-
-1. **Redact** — Regex + NER detect PII, replace with numbered placeholders
-2. **Inject** — `result.text` includes instruction telling LLM to preserve placeholders
-3. **Restore** — `unredact()` maps placeholders back to original values
-
-Same values get same placeholders (deterministic), so `john@acme.com` appearing twice → `[EMAIL_1]` both times.
 
 ## Contributing
 
