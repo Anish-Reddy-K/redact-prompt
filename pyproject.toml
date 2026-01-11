@@ -5,11 +5,34 @@ build-backend = "hatchling.build"
 [project]
 name = "redact-prompt"
 version = "0.1.0"
-description = "Redact secrets from prompts before sending to LLMs"
+description = "Redact sensitive information (API keys, emails, card info, etc.) from prompts before sending to LLMs"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.9"
+authors = [
+    { name = "Anish Reddy"}
+]
+keywords = ["llm", "pii", "redact", "privacy", "security", "openai", "anthropic", "prompt"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = ["spacy>=3.0.0,<4.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/Anish-Reddy-K/redact-prompt"
+Repository = "https://github.com/Anish-Reddy-K/redact-prompt"
+Issues = "https://github.com/Anish-Reddy-K/redact-prompt/issues"
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0.0"]
