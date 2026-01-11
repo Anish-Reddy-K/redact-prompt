@@ -10,10 +10,9 @@ pip install redact-prompt
 
 The spaCy language model downloads automatically on first use.
 
-
 ## How It Works
 
-<img width="1112" height="1091" alt="Screenshot 2026-01-11 at 12 49 54 AM" src="https://github.com/user-attachments/assets/13ad6c38-90c1-4502-841d-da008d1cc0bb" />
+<img width="1112" alt="How redact-prompt works" src="https://github.com/user-attachments/assets/13ad6c38-90c1-4502-841d-da008d1cc0bb" />
 
 1. **Redact** — Regex + NER detect PII, replace with numbered placeholders
 2. **Inject** — `result.text` includes instruction telling LLM to preserve placeholders
@@ -115,6 +114,12 @@ clear()                        # Reset mappings between conversations
 ### Options
 
 ```python
+# Exclude specific types
+result = redact("text", exclude=["EMAIL", "PHONE"])
+
+# Only include specific types
+result = redact("text", include=["SSN", "CREDIT_CARD"])
+
 # Disable NER (faster, regex only)
 result = redact("text", use_ner=False)
 
@@ -125,10 +130,11 @@ result = r.redact("text")
 r.clear()  # Reset for new conversation
 ```
 
+**Available types:** `EMAIL`, `PHONE`, `SSN`, `CREDIT_CARD`, `IP`, `API_KEY`, `PERSON`, `ORG`, `LOCATION`
 
 ## Contributing
 
-PRs welcome! See [GitHub Issues](https://github.com/anthropics/redact-prompt/issues) for wanted features.
+PRs welcome! See [GitHub Issues](https://github.com/Anish-Reddy-K/redact-prompt/issues) for wanted features.
 
 **Adding a new PII pattern:**
 

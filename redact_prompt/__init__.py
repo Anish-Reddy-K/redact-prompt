@@ -123,15 +123,41 @@ class Redactor:
         self._reverse[value] = p
         return p
     
-    def redact(self, text: str) -> RedactionResult:
-        """Redact PII from text."""
+    def redact(
+        self,
+        text: str,
+        *,
+        include: Optional[List[str]] = None,
+        exclude: Optional[List[str]] = None,
+    ) -> RedactionResult:
+        """
+        Redact PII from text.
+        
+        Args:
+            text: Input text to redact
+            include: Only redact these types (e.g., ["EMAIL", "SSN"])
+            exclude: Skip these types (e.g., ["PERSON", "ORG"])
+        """
         if not text:
             return RedactionResult(original=text, redacted=text)
+        
+        # normalize filters to uppercase
+        include_set = {t.upper() for t in include} if include else None
+        exclude_set = {t.upper() for t in exclude} if exclude else set()
+        
+        def should_include(entity_type: str) -> bool:
+            if entity_type.upper() in exclude_set:
+                return False
+            if include_set is not None:
+                return entity_type.upper() in include_set
+            return True
         
         detections = []
         
         # regex detection
         for entity_type, pattern in PATTERNS:
+            if not should_include(entity_type):
+                continue
             for m in pattern.finditer(text):
                 detections.append((entity_type, m.group(), m.start(), m.end()))
         
@@ -139,10 +165,13 @@ class Redactor:
         if self._nlp:
             for ent in self._nlp(text).ents:
                 if ent.label_ in NER_MAP:
+                    mapped_type = NER_MAP[ent.label_]
+                    if not should_include(mapped_type):
+                        continue
                     # skip blocklisted words and very short entities
                     if ent.text.upper() in NER_BLOCKLIST or len(ent.text) < 3:
                         continue
-                    detections.append((NER_MAP[ent.label_], ent.text, ent.start_char, ent.end_char))
+                    detections.append((mapped_type, ent.text, ent.start_char, ent.end_char))
         
         # remove overlaps (keep longer matches)
         detections.sort(key=lambda x: (x[2], -(x[3] - x[2])))
@@ -193,16 +222,28 @@ def _get_redactor(use_ner: bool = True) -> Redactor:
     return _default_redactor
 
 
-def redact(text: str, *, use_ner: bool = True) -> RedactionResult:
+def redact(
+    text: str,
+    *,
+    use_ner: bool = True,
+    include: Optional[List[str]] = None,
+    exclude: Optional[List[str]] = None,
+) -> RedactionResult:
     """
     Redact PII from text.
+    
+    Args:
+        text: Input text to redact
+        use_ner: Use spaCy NER for names/orgs/locations (default: True)
+        include: Only redact these types (e.g., ["EMAIL", "SSN"])
+        exclude: Skip these types (e.g., ["PERSON", "ORG"])
     
     Returns RedactionResult where:
         result.text     - Redacted text + instruction (send to LLM)
         result.redacted - Just the redacted text (for debugging)
         result.entities - List of detected entities
     """
-    return _get_redactor(use_ner).redact(text)
+    return _get_redactor(use_ner).redact(text, include=include, exclude=exclude)
 
 
 def unredact(text: str) -> str:
