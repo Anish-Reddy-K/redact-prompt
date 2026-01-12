@@ -7,6 +7,7 @@ Redact PII from prompts before sending to LLMs. Restore original values in respo
 ```bash
 pip install redact-prompt
 ```
+https://pypi.org/project/redact-prompt/
 
 The spaCy language model downloads automatically on first use.
 
