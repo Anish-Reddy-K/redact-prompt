@@ -2,6 +2,8 @@
 
 Redact PII from prompts before sending to LLMs. Restore original values in responses.
 
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/redact-prompt?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/redact-prompt)
+
 ## Install
 
 ```bash
